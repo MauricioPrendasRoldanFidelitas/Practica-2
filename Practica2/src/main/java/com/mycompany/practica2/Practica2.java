@@ -3,7 +3,8 @@
  */
 
 package com.mycompany.practica2;
-
+import static com.mycompany.practica2.EscanearDirectorioMultihilo.escanearDirectorio;
+import java.util.Scanner;
 /**
  *
  * @author Mauricio Prendas
@@ -11,6 +12,13 @@ package com.mycompany.practica2;
 public class Practica2 {
 
     public static void main(String[] args) {
-        System.out.println("Hello World!");
+        if (args.length != 1) {
+            System.out.println("Uso: java EscanearDirectorioMultihilo <ruta_directorio>");
+            return;
+        }
+
+        String rutaDirectorio = args[0];
+
+        escanearDirectorio(rutaDirectorio);
     }
 }
