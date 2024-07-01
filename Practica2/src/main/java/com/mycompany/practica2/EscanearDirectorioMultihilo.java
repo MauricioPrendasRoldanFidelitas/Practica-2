@@ -13,7 +13,7 @@ import java.util.logging.Level;
 
 public class EscanearDirectorioMultihilo {
     private static final Logger LOGGER = Logger.getLogger(EscanearDirectorioMultihilo.class.getName());
-    private static String outputFilePath;
+    private static final String OUTPUT_FILE = "reporte_hallazgos.txt";
 
     public static void escanearDirectorio(String rutaDirectorio) {
         File directorio = new File(rutaDirectorio);
@@ -28,66 +28,64 @@ public class EscanearDirectorioMultihilo {
             return;
         }
 
-        for (File subdirectorio : subdirectorios) {
-            String nombreSubdirectorio = subdirectorio.getName();
-            if (nombreSubdirectorio.matches("^[a-zA-Z]+_\\d{4}$")) {
-                Thread hilo = new Thread(() -> procesarDirectorio(subdirectorio, nombreSubdirectorio));
-                hilo.start();
-                try {
-                    hilo.join();
-                } catch (InterruptedException e) {
-                    LOGGER.log(Level.SEVERE, "El hilo fue interrumpido.", e);
+        try (FileWriter archivoSalidaWriter = new FileWriter(OUTPUT_FILE)) {
+            for (File subdirectorio : subdirectorios) {
+                String nombreSubdirectorio = subdirectorio.getName();
+                if (nombreSubdirectorio.matches("^[a-zA-Z]+_\\d{4}$")) {
+                    StringBuilder reporte = procesarDirectorio(subdirectorio);
+                    if (reporte.length() > 0) {
+                        archivoSalidaWriter.write(nombreSubdirectorio + "\n");
+                        archivoSalidaWriter.write(reporte.toString());
+                    }
                 }
             }
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Ocurrió un error al escribir en el archivo de salida.", e);
         }
 
         System.out.println("Procesamiento completado.");
     }
 
-    private static void procesarDirectorio(File directorio, String nombreSubdirectorio) {
+    private static StringBuilder procesarDirectorio(File directorio) {
+        StringBuilder reporte = new StringBuilder();
+
         File[] archivos = directorio.listFiles();
         if (archivos == null) {
-            return;
+            return reporte;
         }
 
         for (File archivo : archivos) {
             if (archivo.isDirectory()) {
-                procesarDirectorio(archivo, nombreSubdirectorio);
+                reporte.append(procesarDirectorio(archivo));
             } else if (archivo.getName().endsWith(".txt")) {
-                leerYEscribirContenidoArchivo(archivo, nombreSubdirectorio);
+                leerYProcesarArchivo(archivo, reporte);
             }
         }
+
+        return reporte;
     }
 
-    private static void leerYEscribirContenidoArchivo(File archivo, String nombreSubdirectorio) {
-        try (Scanner lector = new Scanner(archivo); FileWriter archivoSalidaWriter = new FileWriter(outputFilePath, true)) {
-            archivoSalidaWriter.write(nombreSubdirectorio + "\n");
-            archivoSalidaWriter.write("# Reporte del " + obtenerFechaSinFormato() + "\n");
+    private static void leerYProcesarArchivo(File archivo, StringBuilder reporte) {
+        try (Scanner lector = new Scanner(archivo)) {
+            if (lector.hasNextLine()) {
+                String fecha = lector.nextLine();
+                if (fecha.startsWith("# Reporte del ")) {
+                    reporte.append(fecha).append("\n");
 
-            while (lector.hasNextLine()) {
-                String lineaDatos = lector.nextLine();
-                archivoSalidaWriter.write(lineaDatos + "\n");
+                    while (lector.hasNextLine()) {
+                        String linea = lector.nextLine();
+                        if (linea.startsWith("- ")) {
+                            reporte.append(linea).append("\n");
+                        }
+                    }
+
+                    reporte.append("\n");
+                }
             }
-            archivoSalidaWriter.write("\n");
         } catch (FileNotFoundException e) {
             LOGGER.log(Level.SEVERE, "No se encontró el archivo: " + archivo.getAbsolutePath(), e);
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Ocurrió un error al escribir en el archivo de salida.", e);
         }
     }
 
-    private static String obtenerFechaSinFormato() {
-        // Obtiene la fecha actual como cadena de caracteres sin formato
-        long millis = System.currentTimeMillis();
-        long second = (millis / 1000) % 60;
-        long minute = (millis / (1000 * 60)) % 60;
-        long hour = (millis / (1000 * 60 * 60)) % 24;
-        long day = (millis / (1000 * 60 * 60 * 24)) % 30; // Aproximado
-        long month = (millis / (1000 * 60 * 60 * 24 * 30)) % 12; // Aproximado
-        long year = 1970 + (millis / (1000 * 60 * 60 * 24 * 365));
 
-        return String.format("%02d/%02d/%04d", day, month + 1, year);
-    }
-
-    
 }

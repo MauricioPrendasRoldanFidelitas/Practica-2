@@ -1,0 +1,14 @@
+Topico del reporte
+- Cansancio acumulado por correr
+# Notas
+- Nota 1
+- Nota 2
+- Nota 3
+# Dificultades
+- ...
+- ...
+- ...
+- ...
+# Hallazgos
+- No se logra reducir
+- Es natural
