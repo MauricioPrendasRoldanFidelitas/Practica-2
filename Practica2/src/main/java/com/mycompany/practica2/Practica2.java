@@ -4,7 +4,6 @@
 
 package com.mycompany.practica2;
 import static com.mycompany.practica2.EscanearDirectorioMultihilo.escanearDirectorio;
-import java.io.File;
 /**
  *
  * @author Mauricio Prendas
@@ -12,8 +11,6 @@ import java.io.File;
 public class Practica2 {
 
    public static void main(String[] args) {
-        String rutaDirectorio = System.getProperty("user.dir") + File.separator + "bitacora";
-
-        escanearDirectorio(rutaDirectorio);
+        escanearDirectorio("../bitacora");
     }
 }

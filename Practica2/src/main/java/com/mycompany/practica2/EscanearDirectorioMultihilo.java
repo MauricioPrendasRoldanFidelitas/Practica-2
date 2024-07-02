@@ -15,8 +15,19 @@ public class EscanearDirectorioMultihilo {
     private static final Logger LOGGER = Logger.getLogger(EscanearDirectorioMultihilo.class.getName());
     private static final String OUTPUT_FILE = "reporte_hallazgos.txt";
 
+    public static void listFilesForFolder(final File folder) {
+        for (final File fileEntry : folder.listFiles()) {
+            System.out.println(fileEntry.getName());
+            if (fileEntry.isDirectory()) {
+                listFilesForFolder(fileEntry);
+            }
+        }
+    }
+
     public static void escanearDirectorio(String rutaDirectorio) {
         File directorio = new File(rutaDirectorio);
+        System.out.println("Directorio: " + directorio.getAbsolutePath());
+        listFilesForFolder(directorio);
         if (!directorio.isDirectory()) {
             LOGGER.log(Level.SEVERE, "La ruta proporcionada no es un directorio.");
             return;
