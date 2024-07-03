@@ -3,19 +3,19 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.mycompany.practica2;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.FileNotFoundException;
-import java.util.Scanner;
-import java.util.logging.Logger;
+import java.io.File;//biblioteca para los archivos
+import java.io.FileWriter; //biblioteca para escribir en los archivos
+import java.io.IOException; //excepcion a la hora de leer archivos
+import java.io.FileNotFoundException; //exccepcion de archivo no encontrado
+import java.util.Scanner; //escaner para escribir en los archivos y demas
+import java.util.logging.Logger; //loggers para escribir errores
 import java.util.logging.Level;
 
 public class EscanearDirectorioMultihilo {
     private static final Logger LOGGER = Logger.getLogger(EscanearDirectorioMultihilo.class.getName());
     private static final String OUTPUT_FILE = "reporte_hallazgos.txt";
 
-    public static void listFilesForFolder(final File folder) {
+    public static void listFilesForFolder(final File folder) {//metodo recursivo que lista los archivos dentro de uno o varios directorios
         for (final File fileEntry : folder.listFiles()) {
             System.out.println(fileEntry.getName());
             if (fileEntry.isDirectory()) {
@@ -24,22 +24,22 @@ public class EscanearDirectorioMultihilo {
         }
     }
 
-    public static void escanearDirectorio(String rutaDirectorio) {
+    public static void escanearDirectorio(String rutaDirectorio) { //metodo que escanea el directorio especificado
         File directorio = new File(rutaDirectorio);
         System.out.println("Directorio: " + directorio.getAbsolutePath());
         listFilesForFolder(directorio);
-        if (!directorio.isDirectory()) {
+        if (!directorio.isDirectory()) { //si la ruta no es un directorio se muestra el mensaje
             LOGGER.log(Level.SEVERE, "La ruta proporcionada no es un directorio.");
             return;
         }
 
         File[] subdirectorios = directorio.listFiles(File::isDirectory);
-        if (subdirectorios == null) {
+        if (subdirectorios == null) { //si no existen subdirectorios se muestra el mensaje
             LOGGER.log(Level.SEVERE, "No se encontraron subdirectorios.");
             return;
         }
 
-        try (FileWriter archivoSalidaWriter = new FileWriter(OUTPUT_FILE)) {
+        try (FileWriter archivoSalidaWriter = new FileWriter(OUTPUT_FILE)) { //este metodo escribe el archivo de salida
             for (File subdirectorio : subdirectorios) {
                 String nombreSubdirectorio = subdirectorio.getName();
                 if (nombreSubdirectorio.matches("^[a-zA-Z]+_\\d{4}$")) {
@@ -58,7 +58,7 @@ public class EscanearDirectorioMultihilo {
     }
 
     private static StringBuilder procesarDirectorio(File directorio) {
-        StringBuilder reporte = new StringBuilder();
+        StringBuilder reporte = new StringBuilder(); //se procesan los archivos de los directorios
 
         File[] archivos = directorio.listFiles();
         if (archivos == null) {
@@ -66,10 +66,10 @@ public class EscanearDirectorioMultihilo {
         }
 
         for (File archivo : archivos) {
-            if (archivo.isDirectory()) {
+            if (archivo.isDirectory()) { //recursivamente se procesan los archivos del subdirectorio
                 reporte.append(procesarDirectorio(archivo));
             } else if (archivo.getName().endsWith(".txt")) {
-                leerYProcesarArchivo(archivo, reporte);
+                leerYProcesarArchivo(archivo, reporte); //se leen los archivos .txt
             }
         }
 
@@ -77,7 +77,7 @@ public class EscanearDirectorioMultihilo {
     }
 
  private static void leerYProcesarArchivo(File archivo, StringBuilder reporte) {
-        try (Scanner lector = new Scanner(archivo)) {
+        try (Scanner lector = new Scanner(archivo)) { //este metodo construye el reporte_hallazgos.txt
             boolean encabezadoEscrito = false;
             while (lector.hasNextLine()) {
                 String linea = lector.nextLine();

@@ -11,6 +11,6 @@ import static com.mycompany.practica2.EscanearDirectorioMultihilo.escanearDirect
 public class Practica2 {
 
    public static void main(String[] args) {
-        escanearDirectorio("../bitacora");
+        escanearDirectorio("../bitacora"); //se llama al metodo escanearDirectorio para escanear el directorio llamado bitacora
     }
 }
