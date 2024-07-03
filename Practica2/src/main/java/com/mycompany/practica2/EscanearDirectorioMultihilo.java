@@ -76,22 +76,21 @@ public class EscanearDirectorioMultihilo {
         return reporte;
     }
 
-    private static void leerYProcesarArchivo(File archivo, StringBuilder reporte) {
+ private static void leerYProcesarArchivo(File archivo, StringBuilder reporte) {
         try (Scanner lector = new Scanner(archivo)) {
-            if (lector.hasNextLine()) {
-                String fecha = lector.nextLine();
-                if (fecha.startsWith("# Reporte del ")) {
-                    reporte.append(fecha).append("\n");
-
-                    while (lector.hasNextLine()) {
-                        String linea = lector.nextLine();
-                        if (linea.startsWith("- ")) {
-                            reporte.append(linea).append("\n");
-                        }
-                    }
-
-                    reporte.append("\n");
+            boolean encabezadoEscrito = false;
+            while (lector.hasNextLine()) {
+                String linea = lector.nextLine();
+                if (!encabezadoEscrito && linea.startsWith("# Reporte del ")) {
+                    reporte.append(linea).append("\n");
+                    encabezadoEscrito = true;
+                } else if (linea.startsWith("- ")) {
+                    reporte.append(linea).append("\n");
                 }
+            }
+
+            if (encabezadoEscrito) {
+                reporte.append("\n");
             }
         } catch (FileNotFoundException e) {
             LOGGER.log(Level.SEVERE, "No se encontró el archivo: " + archivo.getAbsolutePath(), e);
